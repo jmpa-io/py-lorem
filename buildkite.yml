@@ -16,7 +16,7 @@ plugins:
       workdir: /app
       always-pull: true
       propagate-environment: true
-      propagate-uid-gid: true
+      # propagate-uid-gid: true
 
 steps:
 
