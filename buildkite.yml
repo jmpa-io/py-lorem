@@ -16,7 +16,6 @@ plugins:
       workdir: /app
       always-pull: true
       propagate-environment: true
-      # propagate-uid-gid: true
 
 steps:
 
@@ -37,7 +36,10 @@ steps:
     commands: |
       mkdir dist
       buildkite-agent artifact download "dist/*" dist/
-      cat dist/sentence.txt | buildkite-agent annotate --style "info"
+      cat << EOF | buildkite-agent --style "info" --context "sentence"
+      <h4>Sentence:</h4>
+      ```$(cat dist/sentence.txt)```
+      EOF
     <<: *retry
     <<: *soft_fail
 
@@ -59,7 +61,12 @@ steps:
     commands: |
       mkdir dist
       buildkite-agent artifact download "dist/*" dist/
-      cat dist/paragraph.txt | buildkite-agent annotate --style "info" 
+      buildkite-agent annotate "<h4>Paragraph:</h4>\n\`\`\`$(cat dist/paragraph.txt)\`\`\`"--style "info" --context "paragraph"
     <<: *retry
     <<: *soft_fail
+
+  - label: ":buildkite::docker: Build + push Dockerfile to Buildkite registry."
+    depends_on: [sentence, paragraph]
+    command: make push-image
+    <<: *retry
 
