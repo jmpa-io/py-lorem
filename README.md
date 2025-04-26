@@ -1,3 +1,5 @@
+[![Build status](https://badge.buildkite.com/26ac7f956860649b8a27c352cea5f6d6fa1999d8c9fb88843d.svg)](https://buildkite.com/jmpa-io/py-lorem)
+
 py-lorem
 ========
 
