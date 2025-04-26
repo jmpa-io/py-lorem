@@ -1,7 +1,9 @@
 py-lorem
 ========
 
-Lorem Ipsum library for Python
+```diff
++ ✏️ Lorem Ipsum library for Python. 
+```
 
 Install
 =======
@@ -9,7 +11,7 @@ Install
     pip install py-lorem
 
 Usage
-=====
+=======
 
     import loremipsum
 
@@ -23,7 +25,7 @@ Usage
     loremipsum.paragraph(max_char=100)
 
     #generate a random paragraph of arbitrary length
-    loremipsum.paragraph
+    loremipsum.paragraph()
 
 License
 =======
@@ -31,6 +33,25 @@ License
 The license for this is to of do-whatever-the-hell-you-want-with-it :)
 
 Author
-======
+=======
 
-nubela (nubela@gmail.com)
+* nubela (nubela@gmail.com).
+
+Design decisions
+=======
+
+* Use Docker volumes over Docker copy.
+* Choosing not to mount `buildkite-agent` into Docker container (via [this](https://github.com/buildkite-plugins/docker-buildkite-plugin?tab=readme-ov-file#mount-buildkite-agent-optional-boolean)) because I feel Buildkite should be separated from running inside the runtime Docker environments.
+
+Repository breakdown
+=======
+
+File|Description
+:---|:---
+[buildkite.yml](./buildkite.yml)|The **root** Buildkite pipeline.yml for this repository.
+
+References / Notes
+=======
+
+* [Using plugins](https://buildkite.com/docs/pipelines/integrations/plugins/using).
+* [A warning about using an array / multi-ling string as a command in the Docker plugin](https://github.com/buildkite-plugins/docker-buildkite-plugin?tab=readme-ov-file#run).

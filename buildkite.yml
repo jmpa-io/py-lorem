@@ -1,0 +1,65 @@
+---
+retry: &retry
+  retry:
+    manual:
+      permit_on_passed: true
+
+soft_fail: &soft_fail
+  soft_fail:
+    - exit_status: "*"
+
+plugins:
+  python: &python
+    docker#master:
+      image: python:3.13
+      volumes: [".:/app"]
+      workdir: /app
+      always-pull: true
+      propagate-environment: true
+      propagate-uid-gid: true
+
+steps:
+
+  - label: ":docker::python: Generate sentence." 
+    key: sentence
+    commands:
+      - mkdir dist;
+      - pip install -r requirements.txt;
+      - python -c "import loremipsum; sentence = loremipsum.sentence(max_char=20); open('dist/sentence.txt', 'w').write(sentence)"
+    <<: *retry
+    plugins:
+      <<: *python
+    artifact_paths:
+      - "dist/*"
+
+  - label: ":buildkite: Annotate sentence."
+    depends_on: sentence
+    commands: |
+      mkdir dist
+      buildkite-agent artifact download "dist/*" dist/
+      cat dist/sentence.txt | buildkite-agent annotate --style "info"
+    <<: *retry
+    <<: *soft_fail
+
+  - label: ":docker::python: Generate paragraph."
+    depends_on: sentence
+    key: paragraph
+    commands:
+      - mkdir dist;
+      - pip install -r requirements.txt;
+      - python -c "import loremipsum; paragraph = loremipsum.paragraph(max_char=100); open('dist/paragraph.txt', 'w').write(paragraph)"
+    <<: *retry
+    plugins:
+      <<: *python
+    artifact_paths:
+      - "dist/*"
+
+  - label: ":buildkite: Annotate paragraph."
+    depends_on: paragraph
+    commands: |
+      mkdir dist
+      buildkite-agent artifact download "dist/*" dist/
+      cat dist/paragraph.txt | buildkite-agent annotate --style "info" 
+    <<: *retry
+    <<: *soft_fail
+
