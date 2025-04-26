@@ -3,7 +3,7 @@
 REPO = $(shell basename $(shell git rev-parse --show-toplevel))
 
 # The org used in a few places (GitHub, Buildkite, etc).
-ORG := jmpa-io
+ORG ?= jmpa-io
 
 #
 # Variables.

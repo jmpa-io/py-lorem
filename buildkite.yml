@@ -36,7 +36,7 @@ steps:
     commands: |
       mkdir dist
       buildkite-agent artifact download "dist/*" dist/
-      echo -e "<h4>Sentence:</h4>\n\`\`\`term\n$(cat dist/sentence.txt)\n\`\`\`" | buildkite-agent --style "info" --context "sentence"
+      echo -e "<h4>Sentence:</h4>\n$(cat dist/sentence.txt)" | buildkite-agent annotate --style "info" --context "sentence"
     <<: *retry
     <<: *soft_fail
 
@@ -58,7 +58,7 @@ steps:
     commands: |
       mkdir dist
       buildkite-agent artifact download "dist/*" dist/
-      echo -e "<h4>Paragraph:</h4>\n\`\`\`term\n$(cat dist/paragraph.txt)\n\`\`\`" | buildkite-agent --style "info" --context "paragraph"
+      echo -e "<h4>Paragraph:</h4>\n$(cat dist/paragraph.txt)" | buildkite-agent annotate --style "info" --context "paragraph"
     <<: *retry
     <<: *soft_fail
 
