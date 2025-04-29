@@ -37,3 +37,4 @@ def __strip(str):
     Removes extra whitespace
     """
     return ' '.join(str.split())
+

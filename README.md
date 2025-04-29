@@ -55,5 +55,10 @@ File|Description
 References / Notes
 =======
 
+* [Installing `buildite-agent` on Debian](https://buildkite.com/docs/agent/v3/debian).
 * [Using plugins](https://buildkite.com/docs/pipelines/integrations/plugins/using).
-* [A warning about using an array / multi-ling string as a command in the Docker plugin](https://github.com/buildkite-plugins/docker-buildkite-plugin?tab=readme-ov-file#run).
+* [Using build artifacts](https://buildkite.com/docs/pipelines/configure/artifacts).
+* [Using `buildkite-agent annotate`](https://buildkite.com/docs/agent/v3/cli-annotate).
+* [A warning about using an array / multi-line string as a command in the Docker plugin](https://github.com/buildkite-plugins/docker-buildkite-plugin?tab=readme-ov-file#run).
+* [Pushing an Docker image to the Buildkite artifact registry](https://buildkite.com/docs/package-registries/container).
+

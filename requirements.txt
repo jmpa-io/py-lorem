@@ -1,1 +1,1 @@
-py-lorem
+# py-lorem==1.2
