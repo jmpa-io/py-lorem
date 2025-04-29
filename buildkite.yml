@@ -9,7 +9,7 @@ soft_fail: &soft_fail
     - exit_status: "*"
 
 env:
-  DOCKER_IMAGE: "${PWD}:${BUILDKITE_COMMIT:0:7}"
+  DOCKER_IMAGE: "${BUILDKITE_PIPELINE_NAME}:${BUILDKITE_COMMIT:0:7}"
 
 plugins:
   python: &python

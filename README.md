@@ -62,3 +62,11 @@ References / Notes
 * [A warning about using an array / multi-line string as a command in the Docker plugin](https://github.com/buildkite-plugins/docker-buildkite-plugin?tab=readme-ov-file#run).
 * [Pushing an Docker image to the Buildkite artifact registry](https://buildkite.com/docs/package-registries/container).
 
+
+Challenges faced
+=======
+
+* Using the Docker plugin in the pipeline.
+    * I've found code easier to manage when the control of Docker is outside CI/CD, so that whatever I run is able to be run both locally and in the pipeline and they match - if one changes the other changes. I understand the `bk` CLI can run pipelines though.
+
+* I installed a `buildkite-agent` manually inside my homelab, which is new and still being setup - there were some teething issues.
