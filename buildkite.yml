@@ -60,7 +60,7 @@ steps:
     <<: *retry
     <<: *soft_fail
 
-  - label: ":docker:->:buildkite: Build + push root Dockerfile to Buildkite registry."
+  - label: ":docker: -> :buildkite: Build + push root Dockerfile to Buildkite registry."
     depends_on: [sentence, paragraph]
     command: make push-image
     <<: *retry

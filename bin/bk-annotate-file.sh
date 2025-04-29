@@ -38,10 +38,8 @@ heading="${heading^}"                    # Uppercases first character.
 # Annotate file.
 read -r -d '' msg <<- EOF
 <h4>${heading}:</h4>
-\`\`\`text
 $(cat $file)
-\`\`\`
 EOF
-buildkite-agent annotate "$msg" --style "info" --context "sentence" \
+buildkite-agent annotate "$msg" --style "info" --context "$heading" \
   || die "Failed to annotate $file"
 
