@@ -2,14 +2,17 @@
 # This script lints whatever it can in this repository!
 
 # Funcs.
-die() { echo "$1"; exit "${2:-1}"; }
+die() { echo "$1" >&2; exit "${2:-1}"; }
 
 # Check root.
-[[ -d .git ]] || die "'$0' must be run from the root directory."
+[[ -d .git ]] \
+  || die "'$0' must be run from the root directory."
 
 # Check deps.
 deps=(find docker)
-for dep in "${deps[@]}"; do hash "$dep" 2>/dev/null || missing+=("$dep"); done
+for dep in "${deps[@]}"; do 
+  hash "$dep" 2>/dev/null || missing+=("$dep")
+done
 if [[ "${#missing[*]}" -gt 0 ]]; then
   [[ "${#missing[*]}" -gt 1 ]] && s="s"
   die "Missing dep${s}: ${missing[*]}"

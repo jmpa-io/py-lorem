@@ -8,10 +8,13 @@ soft_fail: &soft_fail
   soft_fail:
     - exit_status: "*"
 
+env:
+  DOCKER_IMAGE: "${PWD}:${BUILDKITE_COMMIT:0:7}"
+
 plugins:
   python: &python
     docker#master:
-      image: python:3.13
+      image: "${DOCKER_IMAGE}"
       volumes: [".:/app"]
       workdir: /app
       always-pull: true
@@ -58,7 +61,7 @@ steps:
     <<: *retry
     <<: *soft_fail
 
-  - label: ":buildkite::docker: Build + push root Dockerfile to Buildkite registry."
+  - label: ":docker:->:buildkite: Build + push root Dockerfile to Buildkite registry."
     depends_on: [sentence, paragraph]
     command: make push-image
     <<: *retry

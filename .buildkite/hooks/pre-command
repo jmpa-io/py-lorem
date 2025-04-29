@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # This script runs before a command in Buildkite.
 #
-# NOTE: this occurs on EVERY step.
+# NOTE: this code is run on EVERY step.
 
 set -e
 
