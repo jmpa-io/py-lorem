@@ -37,5 +37,5 @@ docker run --rm -v "$PWD:/app" -w /app ghcr.io/astral-sh/ruff check \
 
 # Check any errors.
 [[ "${errors}" -gt 0 ]] \
-  && die "~~~ :warning: Found ${errors} linting error(s)."
+  && die "~~~ :warning: Found linting error(s); See above! :point-up:"
 
