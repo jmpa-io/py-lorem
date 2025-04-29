@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# This script runs before a command in Buildkite.
+#
+# NOTE: this code is run on EVERY step.
+
+set -e
+
+make build-image
+

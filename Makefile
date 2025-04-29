@@ -2,18 +2,27 @@
 # The repository name, based on the directory name.
 REPO = $(shell basename $(shell git rev-parse --show-toplevel))
 
-# The org used in a few places (GitHub, Buildkite, etc).
+# The org consistently used in various places (GitHub, Buildkite, etc).
 ORG ?= jmpa-io
+
+# The default goal run with just 'make'.
+.DEFAULT_GOAL := help
 
 #
 # Variables.
 #
 
-# The default goal run with just 'make'.
-.DEFAULT_GOAL := help
-
 # The git commit hash.
 COMMIT ?= $(shell git describe --tags --always)
+
+# The tags added to a Docker image built from this Makefile.
+DOCKER_TAGS ?= $(COMMIT) latest
+
+# The URL of the Docker registry used to store built Docker images.
+DOCKER_REGISTRY ?= packages.buildkite.com/$(ORG)/$(REPO)
+
+# An easy-to-reference URI of the Docker image stored in / pulled from the Docker registry.
+DOCKER_REGISTRY_IMAGE := $(DOCKER_REGISTRY)/$(REPO):$(COMMIT)
 
 #
 # Dependencies.
@@ -21,7 +30,8 @@ COMMIT ?= $(shell git describe --tags --always)
 
 DEPENDENCIES ?= \
 	awk \
-	column
+	column \
+	python 
 
 # Determines if there are any missing dependencies.
 MISSING := \
@@ -35,31 +45,62 @@ MISSING := \
 $(if $(MISSING),$(error Please install: $(MISSING)))
 
 #
-# Docker.
+# Targets.
 #
 
-TAGS ?= $(COMMIT) latest
+dist: # Creates the dist output directory.
+dist:
+	@mkdir dist
 
-REGISTRY ?= packages.buildkite.com/$(ORG)/$(REPO)
-REGISTRY_IMAGE := $(REGISTRY)/$(REPO):$(COMMIT)
+lint: ## Lints everything.
+lint: bin/10-lint.sh
+	$<
+
+generate-sentence: ## Generates 'dist/sentence.txt'.
+generate-sentence: dist/sentence.txt
+dist/sentence.txt: dist
+dist/sentence.txt: bin/20-generate-sentence.py 
+	python $<
+
+generate-paragraph: ## Generates 'dist/paragraph.txt'.
+generate-paragraph: dist/paragraph.txt
+dist/paragraph.txt: dist
+dist/paragraph.txt: bin/30-generate-paragraph.py
+	python $<
+
+annotate-sentence: ## Annotates the 'dist/sentence.txt' in the Buildkite pipeline.
+annotate-sentence: bin/bk-annotate-file.sh dist/sentence.txt
+	$< dist/sentence.txt
+
+annotate-paragraph: ## Annotates the 'dist/paragraph.txt' in the Buildkite pipeline.
+annotate-paragraph: bin/bk-annotate-file.sh dist/paragraph.txt
+	$< dist/paragraph.txt
+
+download-artifacts: # Downloads artifacts in a Buildkite pipeline. 
+download-artifacts: dist
+	buildkite-agent artifact download "$</*" "$</"
+
+#
+# Docker. 
+#
 
 build-image: ## Builds the root Dockerfile in this repository. 
 build-image: Dockerfile
 	docker build \
-		$(patsubst %,-t $(REPO):%,$(TAGS)) \
+		$(patsubst %,-t $(REPO):%,$(DOCKER_TAGS)) \
 		-f $< .
 
 tag-image-with-registry: # Tags the root Docker image with the Docker registry path.
 tag-image-with-registry: build-image
-	docker tag $(REPO):$(COMMIT) $(REGISTRY_IMAGE)
+	docker tag $(REPO):$(COMMIT) $(DOCKER_REGISTRY_IMAGE)
 
 push-image: ## Pushes the root Docker image, built from the root Dockerfile, to the Docker registry.
 push-image: tag-image-with-registry
-	docker push $(REGISTRY_IMAGE)
+	docker push $(DOCKER_REGISTRY_IMAGE)
 
 pull-image: ## Pulls the root Docker image from the Docker registry.
 pull-image: 
-	docker pull $(REGISTRY_IMAGE)
+	docker pull $(DOCKER_REGISTRY_IMAGE)
 
 docker: ## Runs this project locally inside a Docker container.
 docker: build-image

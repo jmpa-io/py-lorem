@@ -8,23 +8,30 @@ soft_fail: &soft_fail
   soft_fail:
     - exit_status: "*"
 
+env:
+  DOCKER_IMAGE: "${BUILDKITE_PIPELINE_NAME}:${BUILDKITE_COMMIT:0:7}"
+
 plugins:
   python: &python
     docker#master:
-      image: python:3.13
+      image: "${DOCKER_IMAGE}"
       volumes: [".:/app"]
       workdir: /app
-      always-pull: true
       propagate-environment: true
 
 steps:
+  
+  - label: ":docker::python::shell: Lint."
+    command: make lint
+    <<: *retry
+    <<: *soft_fail
+
+  - wait: ~
+    continue_on_failure: true
 
   - label: ":docker::python: Generate sentence." 
     key: sentence
-    commands:
-      - mkdir dist;
-      - pip install -r requirements.txt;
-      - python -c "import loremipsum; sentence = loremipsum.sentence(max_char=20); open('dist/sentence.txt', 'w').write(sentence)"
+    command: make generate-sentence
     <<: *retry
     plugins:
       <<: *python
@@ -33,20 +40,14 @@ steps:
 
   - label: ":buildkite: Annotate sentence."
     depends_on: sentence
-    commands: |
-      mkdir dist
-      buildkite-agent artifact download "dist/*" dist/
-      echo -e "<h4>Sentence:</h4>\n$(cat dist/sentence.txt)" | buildkite-agent annotate --style "info" --context "sentence"
+    command: make download-artifacts annotate-sentence
     <<: *retry
     <<: *soft_fail
 
   - label: ":docker::python: Generate paragraph."
     depends_on: sentence
     key: paragraph
-    commands:
-      - mkdir dist;
-      - pip install -r requirements.txt;
-      - python -c "import loremipsum; paragraph = loremipsum.paragraph(max_char=100); open('dist/paragraph.txt', 'w').write(paragraph)"
+    command: make generate-paragraph
     <<: *retry
     plugins:
       <<: *python
@@ -55,14 +56,11 @@ steps:
 
   - label: ":buildkite: Annotate paragraph."
     depends_on: paragraph
-    commands: |
-      mkdir dist
-      buildkite-agent artifact download "dist/*" dist/
-      echo -e "<h4>Paragraph:</h4>\n$(cat dist/paragraph.txt)" | buildkite-agent annotate --style "info" --context "paragraph"
+    command: make download-artifacts annotate-paragraph
     <<: *retry
     <<: *soft_fail
 
-  - label: ":buildkite::docker: Build + push Dockerfile to Buildkite registry."
+  - label: ":docker: -> :buildkite: Build + push root Dockerfile to Buildkite registry."
     depends_on: [sentence, paragraph]
     command: make push-image
     <<: *retry
