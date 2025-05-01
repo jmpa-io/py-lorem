@@ -31,7 +31,7 @@ DOCKER_REGISTRY_IMAGE := $(DOCKER_REGISTRY)/$(REPO):$(COMMIT)
 DEPENDENCIES ?= \
 	awk \
 	column \
-	python 
+	python
 
 # Determines if there are any missing dependencies.
 MISSING := \
@@ -59,7 +59,7 @@ lint: bin/10-lint.sh
 generate-sentence: ## Generates 'dist/sentence.txt'.
 generate-sentence: dist/sentence.txt
 dist/sentence.txt: dist
-dist/sentence.txt: bin/20-generate-sentence.py 
+dist/sentence.txt: bin/20-generate-sentence.py
 	python $<
 
 generate-paragraph: ## Generates 'dist/paragraph.txt'.
@@ -67,6 +67,11 @@ generate-paragraph: dist/paragraph.txt
 dist/paragraph.txt: dist
 dist/paragraph.txt: bin/30-generate-paragraph.py
 	python $<
+
+PHONY += generate-sentence \
+		 generate-paragraph \
+		 dist/sentence.txt \
+		 dist/paragraph.txt
 
 annotate-sentence: ## Annotates the 'dist/sentence.txt' in the Buildkite pipeline.
 annotate-sentence: bin/bk-annotate-file.sh dist/sentence.txt
@@ -76,15 +81,15 @@ annotate-paragraph: ## Annotates the 'dist/paragraph.txt' in the Buildkite pipel
 annotate-paragraph: bin/bk-annotate-file.sh dist/paragraph.txt
 	$< dist/paragraph.txt
 
-download-artifacts: # Downloads artifacts in a Buildkite pipeline. 
+download-artifacts: # Downloads artifacts in a Buildkite pipeline.
 download-artifacts: dist
 	buildkite-agent artifact download "$</*" "$</"
 
 #
-# Docker. 
+# Docker.
 #
 
-build-image: ## Builds the root Dockerfile in this repository. 
+build-image: ## Builds the root Dockerfile in this repository.
 build-image: Dockerfile
 	docker build \
 		$(patsubst %,-t $(REPO):%,$(DOCKER_TAGS)) \
@@ -99,7 +104,7 @@ push-image: tag-image-with-registry
 	docker push $(DOCKER_REGISTRY_IMAGE)
 
 pull-image: ## Pulls the root Docker image from the Docker registry.
-pull-image: 
+pull-image:
 	docker pull $(DOCKER_REGISTRY_IMAGE)
 
 docker: ## Runs this project locally inside a Docker container.
@@ -107,7 +112,7 @@ docker: build-image
 	docker run -it \
 		-v "$(PWD):/app" \
 		-w "/app" \
-		"$(REPO):$(COMMIT)" bash 
+		"$(REPO):$(COMMIT)" bash
 
 #
 # Utility.
